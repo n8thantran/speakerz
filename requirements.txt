@@ -23,3 +23,4 @@ urllib3==2.4.0
 websockets==15.0.1
 yarl==1.20.0
 yt-dlp==2025.4.19.232942.dev0
+sounddevice==0.4.6

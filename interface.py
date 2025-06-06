@@ -9,6 +9,9 @@ import discord
 from discord.ext import commands
 import asyncio
 from dotenv import load_dotenv
+import platform
+import subprocess
+import sounddevice as sd
 
 # Load environment variables
 load_dotenv()
@@ -47,6 +50,11 @@ current_pos = 0.0  # Track the current position in seconds
 paused_time = 0   # Store when we paused
 discord_status = "Discord bot: Disconnected"
 discord_last_command = ""
+
+# Audio device monitoring
+connected_audio_device = "Audio: No devices found"
+last_audio_check = 0
+AUDIO_CHECK_INTERVAL = 5000  # Check every 5 seconds (in milliseconds)
 
 # Search results
 search_results = []
@@ -89,6 +97,25 @@ def sanitize_filename(title):
     for char in invalid_chars:
         title = title.replace(char, '_')
     return title
+
+def get_connected_audio_devices():
+    """Get the name of the default audio output device using sounddevice."""
+    try:
+        device_info = sd.query_devices(kind='output')
+        if not device_info:
+            return "Audio: No default output device found"
+        
+        device_name = device_info.get('name', 'Unknown Device')
+        
+        # Check for bluetooth keywords and add an icon
+        is_bluetooth = any(keyword in device_name.lower() for keyword in ['bluetooth', 'bt', 'wireless', 'airpods', 'headset', 'soundcore'])
+        
+        prefix = "🔵 " if is_bluetooth else ""
+        return f"Audio: {prefix}{device_name}"
+            
+    except Exception as e:
+        print(f"Error getting audio device: {e}")
+        return "Audio: Error detecting device"
 
 def search_youtube(query):
     ydl_opts = {
@@ -589,6 +616,12 @@ while True:
                 else:
                     search_text += event.unicode
 
+    # Check audio devices periodically
+    current_time = pygame.time.get_ticks()
+    if current_time - last_audio_check > AUDIO_CHECK_INTERVAL:
+        connected_audio_device = get_connected_audio_devices()
+        last_audio_check = current_time
+
     screen.fill(BLACK)
     
     # Draw search box
@@ -610,6 +643,10 @@ while True:
     pygame.draw.rect(screen, WHITE, skip_button)
     skip_text = font.render("⏭", True, BLACK)
     screen.blit(skip_text, (skip_button.centerx - 10, skip_button.centery - 10))
+
+    # Draw audio device status
+    audio_status_surface = small_font.render(connected_audio_device, True, WHITE)
+    screen.blit(audio_status_surface, (volume_slider.x, volume_slider.y - 25))
 
     # Draw volume slider
     pygame.draw.rect(screen, GRAY, volume_slider)
@@ -633,6 +670,6 @@ while True:
     if discord_last_command:
         cmd_text = small_font.render(f"Last command: {discord_last_command}", True, WHITE)
         screen.blit(cmd_text, (50, 575))
-
+    
     pygame.display.update()
     clock.tick(60)
