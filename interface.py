@@ -123,6 +123,7 @@ def search_youtube(query):
         'quiet': True,
         'no_warnings': True,
         'extract_flat': True,
+        'cookiefile': 'cookies.txt',  # Use the cookies.txt file
     }
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         results = ydl.extract_info(f"ytsearch5:{query}", download=False)
@@ -149,6 +150,7 @@ def download_audio_worker(video_info, has_auto_play_chance):
         'outtmpl': f'downloads/{sanitized_title}.%(ext)s',
         'quiet': True,
         'no_warnings': True,
+        'cookiefile': 'cookies.txt',  # Use the cookies.txt file
     }
     
     download_succeeded = False
