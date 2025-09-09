@@ -2,6 +2,8 @@
 
 This application combines a Pygame-based music player with Discord bot controls, allowing you to control your music player through Discord commands.
 
+**Note**: This application has been refactored from a single monolithic file into a modular structure for better maintainability. See `ARCHITECTURE.md` for detailed information about the new structure.
+
 ## Setup
 
 1. Install the required dependencies:
@@ -16,7 +18,13 @@ This application combines a Pygame-based music player with Discord bot controls,
 
 3. Run the application:
    ```
-   python interface.py
+   python main.py
+   ```
+   
+   Or use the convenience scripts:
+   ```bash
+   ./run.sh    # Linux/Mac
+   ./run.bat   # Windows
    ```
 
 ## Discord Commands
@@ -37,6 +45,20 @@ The Pygame interface provides local controls and shows the Discord bot status at
 - Adjust volume with the slider
 - Skip button to play the next song
 
+## Architecture
+
+The application has been refactored into a modular structure with the following components:
+
+- `main.py` - Application entry point and initialization
+- `config.py` - Configuration and global state management
+- `audio.py` - Audio device utilities and filename handling
+- `youtube.py` - YouTube search and download functionality
+- `player.py` - Music playback and queue management
+- `discord_bot.py` - Discord bot integration and commands
+- `ui.py` - Pygame user interface and event handling
+
+For detailed architecture information, see `ARCHITECTURE.md`.
+
 ## How It Works
 
-The application runs both the Pygame interface and Discord bot simultaneously using threading. Commands from Discord are reflected in the local player and vice versa. 
+The application runs both the Pygame interface and Discord bot simultaneously using threading. Commands from Discord are reflected in the local player and vice versa. The modular design allows for easy maintenance and future enhancements.
